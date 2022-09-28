@@ -1,0 +1,52 @@
+---
+
+- name: Install required packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - curl
+      - git
+      - unzip
+
+- name: Download composer
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/installer
+
+- name: Check if composer is already installed
+  stat:
+    path: /usr/local/bin/composer.phar
+  register: composer_binary
+
+- name: Install composer
+  shell: |
+    set -o pipefail
+    cat /tmp/installer | php -d allow_url_fopen=1 -- --install-dir=/usr/local/bin --version={{ composer_version }}
+  args:
+    executable: /bin/bash
+    creates: /usr/local/bin/composer
+  when: not composer_binary.stat.exists
+
+- name: Link composer.phar to composer
+  file:
+    src: /usr/local/bin/composer.phar
+    dest: /usr/local/bin/composer
+    state: link
+  when: not composer_binary.stat.exists
+
+- name: Make composer executable
+  file:
+    path: /usr/local/bin/composer.phar
+    mode: a+x
+    state: file
+  when: not composer_binary.stat.exists
+
+- name: update to the latest version
+  shell: "{{ composer_install_dir }}/composer self-update"
+  register: _composer_self_update
+  changed_when: "'Updating to version' in _composer_self_update.stderr"
+  when: composer_self_update
+  tags:
+    - composer-self-update
