@@ -25,7 +25,7 @@ ansible-galaxy install claranet.composer
 
 Variable | Default value | Description
 ---------|---------------|------------
-composer_version | **1.10.20** | Composer version to install
+composer_version | **1.10.26** | Composer version to install
 composer_install_dir | **/usr/local/bin** | Composer bin folder to install the Composer bin
 composer_self_update | **false** | Enable Composer self update after installation
 composer_force_update | **false** | Enable Composer force update version (if false, Composer will not be updated with the new specified version if *composer_version* var changed)
